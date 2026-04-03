@@ -2,27 +2,32 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>نظام جرد الأصناف</title>
+    <title>نظام جرد الأصناف - بحث سريع</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
-        .search-box { width: 100%; padding: 12px; font-size: 18px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .item-card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .item-code { font-weight: bold; color: #2c3e50; background: #ecf0f1; padding: 4px 8px; border-radius: 4px; font-family: monospace; }
-        .item-name { color: #34495e; font-size: 16px; }
-        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
-        #total-count { color: #3498db; }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; display: flex; flex-direction: column; align-items: center; }
+        .search-container { width: 100%; max-width: 600px; text-align: center; margin-top: 50px; }
+        .search-box { width: 100%; padding: 15px; font-size: 20px; border: 2px solid #3498db; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); outline: none; transition: 0.3s; }
+        .search-box:focus { border-color: #2980b9; box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
+        .results-container { width: 100%; max-width: 600px; margin-top: 20px; }
+        .item-card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; animation: fadeIn 0.3s ease; }
+        .item-code { font-weight: bold; color: #2c3e50; background: #ecf0f1; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 16px; }
+        .item-name { color: #34495e; font-size: 16px; font-weight: 500; }
+        .count-badge { margin-bottom: 10px; color: #7f8c8d; font-size: 14px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <h2>قائمة الأصناف (<span id="total-count">0</span> صنف)</h2>
-    
-    <input type="text" id="searchInput" class="search-box" placeholder="ابحث عن اسم المنتج أو الكود...">
+    <div class="search-container">
+        <h2 style="color: #2c3e50;">محرك بحث الأصناف</h2>
+        <input type="text" id="searchInput" class="search-box" placeholder="ابحث عن اسم المنتج أو الكود هنا..." autofocus>
+        <div id="count-info" class="count-badge"></div>
+    </div>
 
-    <div id="results"></div>
+    <div id="results" class="results-container"></div>
 
     <script>
-        // قاعدة البيانات الصحيحة
+        // قاعدة البيانات (يمكنك التعديل على الأسماء هنا)
         const database = [
             {c:"900600", n:"حليب المراعي طازج كامل الدسم 1 لتر"},
             {c:"901130", n:"جميد طيبة 900 مل"},
@@ -292,19 +297,25 @@
 
         const searchInput = document.getElementById('searchInput');
         const resultsDiv = document.getElementById('results');
-        const totalCountSpan = document.getElementById('total-count');
+        const countInfo = document.getElementById('count-info');
 
         function displayResults(filter = '') {
             resultsDiv.innerHTML = '';
-            // تنظيف النص المدخل من الفراغات الزائدة
             const cleanFilter = filter.trim().toLowerCase();
-            
+
+            // إذا كان المربع فارغاً، لا تظهر شيئاً
+            if (cleanFilter === '') {
+                countInfo.innerText = '';
+                return;
+            }
+
             const filtered = database.filter(item => 
                 item.n.toLowerCase().includes(cleanFilter) || 
                 item.c.includes(cleanFilter)
             );
 
-            totalCountSpan.innerText = filtered.length;
+            // تحديث عدد النتائج
+            countInfo.innerText = `تم العثور على ${filtered.length} صنف`;
 
             filtered.forEach(item => {
                 const div = document.createElement('div');
@@ -320,9 +331,6 @@
         searchInput.addEventListener('input', (e) => {
             displayResults(e.target.value);
         });
-
-        // تشغيل العرض الأولي
-        displayResults();
     </script>
 </body>
 </html>
