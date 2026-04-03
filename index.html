@@ -2,32 +2,145 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>نظام جرد الأصناف - بحث سريع</title>
+    <title>نظام جرد الأصناف - بحث ونسخ سريع</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; display: flex; flex-direction: column; align-items: center; }
-        .search-container { width: 100%; max-width: 600px; text-align: center; margin-top: 50px; }
-        .search-box { width: 100%; padding: 15px; font-size: 20px; border: 2px solid #3498db; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); outline: none; transition: 0.3s; }
-        .search-box:focus { border-color: #2980b9; box-shadow: 0 4px 12px rgba(52,152,219,0.3); }
-        .results-container { width: 100%; max-width: 600px; margin-top: 20px; }
-        .item-card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; animation: fadeIn 0.3s ease; }
-        .item-code { font-weight: bold; color: #2c3e50; background: #ecf0f1; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 16px; }
-        .item-name { color: #34495e; font-size: 16px; font-weight: 500; }
-        .count-badge { margin-bottom: 10px; color: #7f8c8d; font-size: 14px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f0f2f5; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+
+        .search-container { 
+            width: 90%; 
+            max-width: 800px; /* زيادة عرض الحاوية */
+            text-align: center; 
+            margin-top: 60px; 
+            position: sticky; 
+            top: 20px; 
+            z-index: 100; 
+        }
+
+        /* تكبير مربع البحث */
+        .search-box { 
+            width: 100%; 
+            padding: 25px 30px; /* زيادة الحشوة الداخلية */
+            font-size: 28px; /* تكبير الخط جداً */
+            font-weight: bold;
+            border: 3px solid #007bff; 
+            border-radius: 20px; /* زوايا دائرية أكثر */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            outline: none; 
+            transition: all 0.3s ease;
+            background-color: #fff;
+        }
+
+        .search-box:focus { 
+            border-color: #28a745; 
+            box-shadow: 0 12px 30px rgba(40,167,69,0.2); 
+            transform: translateY(-2px);
+        }
+
+        .results-container { 
+            width: 90%; 
+            max-width: 800px; 
+            margin-top: 30px; 
+        }
+        
+        .item-card { 
+            background: white; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            border-radius: 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            border-right: 8px solid #007bff;
+            user-select: none;
+        }
+
+        .item-card:hover { 
+            background-color: #e8f4ff; 
+            border-right-color: #28a745;
+            transform: scale(1.01); 
+        }
+
+        .item-name { 
+            color: #212529; 
+            font-size: 20px; 
+            font-weight: 600; 
+            flex-grow: 1;
+        }
+
+        .item-code { 
+            font-weight: bold; 
+            color: #495057; 
+            background: #f1f3f5; 
+            padding: 8px 15px; 
+            border-radius: 10px; 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 18px; 
+            margin-right: 15px;
+        }
+
+        .count-badge { 
+            margin-top: 15px; 
+            color: #495057; 
+            font-size: 16px; 
+            font-weight: bold;
+            background: #fff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        /* تنبيه النسخ */
+        #copyToast {
+            visibility: hidden; 
+            min-width: 250px; 
+            background-color: #28a745; 
+            color: #fff; 
+            text-align: center; 
+            border-radius: 12px; 
+            padding: 16px; 
+            position: fixed; 
+            z-index: 1000; 
+            bottom: 40px; 
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px; 
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        #copyToast.show { visibility: visible; animation: fadeInOut 2.5s; }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; bottom: 0; }
+            20% { opacity: 1; bottom: 40px; }
+            80% { opacity: 1; bottom: 40px; }
+            100% { opacity: 0; bottom: 0; }
+        }
     </style>
 </head>
 <body>
 
     <div class="search-container">
-        <h2 style="color: #2c3e50;">محرك بحث الأصناف</h2>
-        <input type="text" id="searchInput" class="search-box" placeholder="ابحث عن اسم المنتج أو الكود هنا..." autofocus>
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 ابحث هنا بالاسم أو الكود..." autofocus>
         <div id="count-info" class="count-badge"></div>
     </div>
 
     <div id="results" class="results-container"></div>
+    
+    <div id="copyToast">تم نسخ (الاسم والكود) بنجاح! ✅</div>
 
     <script>
-        // قاعدة البيانات (يمكنك التعديل على الأسماء هنا)
+        // قاعدة البيانات
         const database = [
             {c:"900600", n:"حليب المراعي طازج كامل الدسم 1 لتر"},
             {c:"901130", n:"جميد طيبة 900 مل"},
@@ -298,12 +411,19 @@
         const searchInput = document.getElementById('searchInput');
         const resultsDiv = document.getElementById('results');
         const countInfo = document.getElementById('count-info');
+        const toast = document.getElementById('copyToast');
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                toast.className = "show";
+                setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2500);
+            });
+        }
 
         function displayResults(filter = '') {
             resultsDiv.innerHTML = '';
             const cleanFilter = filter.trim().toLowerCase();
 
-            // إذا كان المربع فارغاً، لا تظهر شيئاً
             if (cleanFilter === '') {
                 countInfo.innerText = '';
                 return;
@@ -314,8 +434,7 @@
                 item.c.includes(cleanFilter)
             );
 
-            // تحديث عدد النتائج
-            countInfo.innerText = `تم العثور على ${filtered.length} صنف`;
+            countInfo.innerText = `تم العثور على ${filtered.length} نتيجة`;
 
             filtered.forEach(item => {
                 const div = document.createElement('div');
@@ -324,6 +443,12 @@
                     <span class="item-name">${item.n}</span>
                     <span class="item-code">${item.c}</span>
                 `;
+                
+                div.onclick = () => {
+                    const textToCopy = `${item.n} ${item.c}`;
+                    copyToClipboard(textToCopy);
+                };
+
                 resultsDiv.appendChild(div);
             });
         }
